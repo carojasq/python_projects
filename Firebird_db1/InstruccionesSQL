@@ -1,0 +1,77 @@
+vim /etc/bash.bashrc
+export PATH=$PATH:/opt/firebird/bin
+
+systemctl start firebird
+gsec -user sysdba -password masterkey
+
+GSEC> modify SYSDBA -pw clave
+
+ISQL -> Equivalente de PSQLs
+
+
+cd /opt/firebird
+mkdir data
+chown firebird:firebird data
+isql
+#Creacion y conexión a DB
+CREATE DATABASE 'agenda.gdb'  USER 'sysdba' PASSWORD 'clave';
+CONNECT 'agenda.gdb'  USER 'sysdba' PASSWORD 'clave';
+
+
+# Creación de tablas con respectivas condiciones
+CREATE TABLE fechas ( 
+    id_fecha int not null primary key,
+    fecha DATE not null,
+    UNIQUE (fecha));
+
+CREATE TABLE citas (
+    id_cita int not null primary key ,  
+    hora TIME CHECK ( hora > cast('8:00:00' as time ) AND hora < cast('19:00:00' as time)), 
+    duracion SMALLINT,
+    prioridad SMALLINT CHECK (prioridad in (1, 3, 5, 7, 9)),
+    descripcion VARCHAR(100),
+    id_fecha int not null references fechas 
+    );
+
+#If you create a foreign key without specifying a target column, it will reference the primary key of the target table.
+
+
+/* we want field ID to be autoincrement */
+
+CREATE GENERATOR gen_fechas_id_fecha;
+SET GENERATOR gen_fechas_id_fecha TO 0;
+
+SET TERM !! ;
+CREATE TRIGGER fechas_B1 FOR fechas
+ACTIVE BEFORE INSERT POSITION 0
+AS
+BEGIN
+IF (NEW.id_fecha IS NULL) THEN
+NEW.id_fecha = GEN_ID(gen_fechas_id_fecha, 1);
+END!!
+SET TERM ; !!
+
+
+CREATE GENERATOR gen_citas_id_cita;
+SET GENERATOR gen_citas_id_cita TO 0;
+SET TERM !! ;
+CREATE TRIGGER citas_B1 FOR citas
+ACTIVE BEFORE INSERT POSITION 0
+AS
+BEGIN
+IF (NEW.id_cita IS NULL) THEN
+NEW.id_cita = GEN_ID(gen_citas_id_cita, 1);
+END!!
+SET TERM ; !!
+
+# MM/DD/YYYY
+INSERT INTO fechas(fecha) values ('12-24-14');
+INSERT INTO citas(hora, prioridad, duracion, id_fecha) values ('14:00', 5, 20, 1);
+
+CHECK ( hora > cast('8:00:00' as time ) AND hora < cast('19:00:00' as time))
+tim;
+gsec - This is the security administrator. You will use this command-line tool for creating, modifying and deleting database users, changing passwords, etc.
+isql - This is the interactive SQL tool, similar to Oracle's SQL*Plus and Postgresql's psql command. You can use this to test or run SQL queries.
+CONSTRAINT hora_mt CHECK ( hora > cast('8:00:00' as time ),
+    CONSTRAINT hora_le CHECK ( hora < cast('19:00:00' as time ),
+
