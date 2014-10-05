@@ -3,18 +3,18 @@
 Práctica acedémica, implementación de una agenda usando modelo relacional y firebird.
 
 <h2> Instrucciones: </h2>
-	```bash
+	````bash
 	# Instalar dependencias
         pip install -r requirements.pip
 	#Restaurar bases de datos (DUMP Incluido):
 	gbak -c -v -user SYSDBA -password masterkey c:\location\1\database_backup.fbk dbserver:/db/agenda.fdb	
-        ```
+        ````
 	Configurar usuario y contraseña en la segunda linea del archivo server.py
 
 	Ejecutar:
-         ```bash
+         ````bash
 	python2 server.py
-        ```
+        ````
 
 	Ingresar a:
 		localhost:8080 desde su navegador favorito
