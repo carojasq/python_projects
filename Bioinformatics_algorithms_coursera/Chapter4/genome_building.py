@@ -1,3 +1,5 @@
+import random
+
 def Composition(k, text):
 	kmers = []
 	for i in range(len(text)+1-k):
@@ -61,8 +63,87 @@ def deBrujinGraphFromKmers(kmers_in):
 		adj_dict[Prefix(kmer)].append(Suffix(kmer))
 	return adj_dict
 
+def EulerianCycleProblem(adj_list):
+	# Choose any vertex and push into stack
+	stack=[]
+	random_vertex = random.sample(adj_list.keys(), 1)[0]
+	stack.append(random_vertex)
+	# To save the right path
+	path = []
+	# Stack but fifo xD
+	while stack != []:
+		# top vertex
+		u_v = stack[-1]
+		try:
+			w = adj_list[u_v][0]
+			stack.append(w)
+			# Removeadj_list[u][0] from available edges (edge marked)
+			adj_list[u_v].remove(w)
+		# No edges
+		except:
+			path.append(stack.pop())
+	return path[::-1]
+
+def EulerianPathProblem(adj_list):
+	balanced_count = dict.fromkeys(adj_list.keys(), 0)
+	# Look for nodes balancing
+	for node in adj_list.keys():
+		#  If is in the sum 1 to balance, if out rest 1
+		#print node
+		for out in adj_list[node]:
+			balanced_count[node] -= 1
+			# Possibly there is a node with no out edges
+			try:
+				balanced_count[out] += 1
+			except:
+				balanced_count[out] = 1
+	# Choose a unbalanced vertex (with out edge) and push into stack
+	stack=[]
+	stack.append([k for k, v in balanced_count.iteritems() if v==-1][0])
+	# To save the right path
+	path = []
+	# Stack but fifo xD
+	while stack != []:
+		# top vertex
+		u_v = stack[-1]
+		try:
+			w = adj_list[u_v][0]
+			stack.append(w)
+			# Removeadj_list[u][0] from available edges (edge marked)
+			adj_list[u_v].remove(w)
+		# No edges
+		except:
+			path.append(stack.pop())
+	return path[::-1]
 
 
+
+
+
+"""
+
+#Input for eulerian path problem
+from sys import argv
+adj_list = {}
+adj_list_file = open(argv[1], "r")
+for l in adj_list_file:
+	data = l.strip().split(" -> ")
+	source = data[0]
+	adj_list[data[0]]=data[1].split(",")
+print "->".join(EulerianPathProblem(adj_list))
+
+#Input for eulerian cycle problem
+from sys import argv
+adj_list = {}
+adj_list_file = open(argv[1], "r")
+for l in adj_list_file:
+	data = l.strip().split(" -> ")
+	source = data[0]
+	adj_list[data[0]]=data[1].split(",")
+print "->".join(EulerianCycleProblem(adj_list))
+
+
+# Input for deBrujinGraphFromKmers
 from sys import argv
 
 kmer_file = open(argv[1], "r")
@@ -73,8 +154,6 @@ for l in kmer_file:
 adj_dict =  deBrujinGraphFromKmers(kmers)
 for k in sorted(adj_dict.keys()):
 	print "%s -> %s" % (k, ",".join(adj_dict[k]))
-
-"""
 
 #adj_dict = deBrujin(12, "CTGAAGACCTCTCCACATTACTACGATATAAATCATTTCAGCCTCTAGATACGCCTTGGTGGGTGGGGTTGGCAATTTACGATATGTCCGAATGATTTGACACCAAATACCTTAGCTAGCCCCAAGGAAAATTCTGGGCTTTACGTTGGCCGAGCCACATTACTACAGTAAGGTTAAGCAACCAGCCAGTCGCTCATAAGGACTCCACGCCTCCCGTTACTGACTTCCAACAACAATGTGACAGTAGACTGGAACCTGGGAGGACATTATTGATTCGCCGCGAATCTTCTAAGGTATTTTACCCCCACTGGTCACCTTAACCATTAAGACCTCGAAGTGACACCTAGCCTCTTAACACCCAACTCCACCGACAATACCTATTCGCTGACAAGCGGGACATCCGATCGCCCCTGACTCGAGGTGTCTACCGTCCATCGATTGCTAAACTTTGTTAGGAGTCTAAGCGAACCATGGGAAGGGGGCGGCAGTCAACGTGCTCCTTTAGTGAGGTACCATATTCTTACAGCATGTGGAGCGCAGCAAACTAGCGACCGGGAGTACTCCCACAACCCTGGGTACGTACTGCACTTTTTTCAAGAGCCAGGGTCATTTAAATAGCATCTTTGCTCTTTCTGATAAGGGGGCGACCATCTCCGAATTGAGCCAAACGCTGGTATAAGACTCGTCTCATGACTCCCTAGCCATTTGTATGTTGTCATTTCTGATTTTAGCAGGTAAAACGTAAGGCCTGCTAAAGAATCACGCGGGGAGGCCTTAAATTTCGTCATGGAGCAATCGTCCTAGATTGCTGTGAAGGTTCGTACCAGTAGAGTCTAATGTGCGTAAATGTTAACTGGCCGTATATTCTCTGGTGAGCTGAAACAGAAAGCTGGCAGAAAGCCACTCTTGCTGTTTCGTGTGTACGGACATCGGGATAGTACCAAAAAGCATGTTCTTCATCTGGCGATGCTTGATGTCTACCGTAGACACCTTCATACGT")
 # Input for generate de brujin from text
